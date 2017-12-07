@@ -178,7 +178,9 @@ class CSR:
                     cj = self.row_ptr[j] - 1 + nj
 
                     if self.col_ind[ci] == self.col_ind[cj]:
-                        cosine += self.val[ci] * self.val[cj]
+                        # Added check
+                        if self.context[ci] == self.context[cj]:
+                            cosine += self.val[ci] * self.val[cj]
                         lengthi += self.val[ci] ** 2
                         lengthj += self.val[cj] ** 2
 
@@ -254,7 +256,9 @@ class CSR:
                     cj = self.row_ptr[j] - 1 + nj
 
                     if self.col_ind[ci] == self.col_ind[cj]:
-                        cosine += self.val[ci] * self.val[cj]
+                        # Added check
+                        if self.context[ci] == self.context[cj] and self.context[ci] > 0:
+                            cosine += self.val[ci] * self.val[cj]
                         lengthi += self.val[ci] ** 2
                         lengthj += self.val[cj] ** 2
 

@@ -39,5 +39,12 @@ def main():
     traffic_cond_csr.build_from_excel(ws, user_list, dimension=10)
     weather_csr.build_from_excel(ws, user_list, dimension=11)
 
+    ds_sim = driving_style_csr.calculate_cosine_sim()
+    print(ds_sim.csr_dict['val'])
+
+    # Redundantly generates sim matrix again, but nicely outputs data
+    # in the following form: 'i j value'
+    driving_style_csr.calculate_and_output_cosine_sim('sim.txt', -1)
+
 
 main()
