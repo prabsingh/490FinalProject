@@ -21,6 +21,7 @@ def main():
 
     user_list = getUsers(ws)
 
+    special_csr = CSR()
     driving_style_csr = CSR()
     landscape_csr = CSR()
     mood_csr = CSR()
@@ -29,6 +30,9 @@ def main():
     sleepiness_csr = CSR()
     traffic_cond_csr = CSR()
     weather_csr = CSR()
+
+    # CSR for songs rated with no context data
+    special_csr.build_no_context(ws, user_list)
 
     driving_style_csr.build_from_excel(ws, user_list, dimension=4)
     landscape_csr.build_from_excel(ws, user_list, dimension=5)
@@ -40,11 +44,11 @@ def main():
     weather_csr.build_from_excel(ws, user_list, dimension=11)
 
     ds_sim = driving_style_csr.calculate_cosine_sim()
-    print(ds_sim.csr_dict['val'])
 
     # Redundantly generates sim matrix again, but nicely outputs data
     # in the following form: 'i j value'
-    driving_style_csr.calculate_and_output_cosine_sim('sim.txt', -1)
+    #driving_style_csr.calculate_and_output_cosine_sim('sim.txt', -1)
+
 
 
 main()

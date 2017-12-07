@@ -13,6 +13,35 @@ class CSR:
         self.columns = None
         self.nnz = None
 
+    def build_no_context(self, ws, user_list):
+        self.rows = len(user_list)
+
+        row = 2
+        # Each user is represented once in user_list
+        for index, user in enumerate(user_list):
+            column = 0
+            num_nz = 0
+            while user == ws.cell(row=row, column=1).value:
+
+                dim_sum = 0
+                # Magic numbers 4 and 12 represent the columns that our dimensions are found in
+                # for(i = 4; i < 12; i++)
+                for i in range(4, 12):
+                    dim_sum += ws.cell(row=row, column=i).value
+
+                # If any context value is greater than 0, the sum clearly will not be equal to 0.
+                if dim_sum == 0:
+                    self.csr_dict['col_ind'].append(column)
+                    self.csr_dict['val'].append(0)
+                    self.csr_dict['context'].append(ws.cell(row=row, column=3).value)
+                    num_nz += 1
+                column += 1
+                row += 1
+            temp = num_nz + self.csr_dict['row_ptr'][index]
+            self.csr_dict['row_ptr'].append(temp)
+
+        self.nnz = self.csr_dict['row_ptr'][len(self.csr_dict['row_ptr']) - 1] - 1
+
     def build_from_excel(self, ws, user_list, dimension):
         self.rows = len(user_list)
 
