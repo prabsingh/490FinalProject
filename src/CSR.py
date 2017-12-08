@@ -335,6 +335,63 @@ class CSR:
 
         print("File written: " + sim_out)
 
+    def calc_user_user_sim(self, userI, userJ):
+        nrowi = self.row_ptr[userI] - self.row_ptr[userI -1]
+        nrowj = self.row_ptr[userJ] - self.row_ptr[userJ -1]
+        ni = 0
+        nj = 0
+        cosine = 0
+        lengthi = 0
+        lengthj = 0
 
+        while (ni < nrowi) and (nj < nrowj):
+
+            # Subtract by 1 to start from the 0 index when i, j = 0
+            ci = self.row_ptr[userI - 1] - 1 + ni
+            cj = self.row_ptr[userJ - 1] - 1 + nj
+
+            if self.col_ind[ci] == self.col_ind[cj]:
+                # Added check
+                if self.context[ci] == self.context[cj] and self.context[ci] > 0:
+                    cosine += self.val[ci] * self.val[cj]
+                lengthi += self.val[ci] ** 2
+                lengthj += self.val[cj] ** 2
+
+                ni += 1
+                nj += 1
+
+            # If the col_ind[ci] gets ahead of col_ind[cj], increment nj
+            # to progress col_ind[cj]
+            elif self.col_ind[ci] > self.col_ind[cj]:
+                lengthj += self.val[cj] ** 2
+                nj += 1
+
+            # If the col_ind[cj] gets ahead of col_ind[ci], increment ni
+            # to progress col_ind[ci]
+            elif self.col_ind[ci] < self.col_ind[cj]:
+                lengthi += self.val[ci] ** 2
+                ni += 1
+
+        # If nj == nrowj before ni == nrowi, finish the computations for ni
+        # until ni == nrowi
+        while ni < nrowi:
+            ci = self.row_ptr[userI - 1] - 1 + ni
+            lengthi += self.val[ci] ** 2
+            ni += 1
+
+        # If ni == nrowi before nj == nrowj, finish the computations for nj
+        # until nj == nrowj
+        while nj < nrowj:
+            cj = self.row_ptr[userJ -1] - 1 + nj
+            lengthj += self.val[cj] ** 2
+            nj += 1
+
+        # Calculate the similarity combining the values from the while loops
+        if lengthi * lengthj:
+            cosine /= math.sqrt(lengthi * lengthj)
+        else:
+            cosine = 0
+
+        return cosine
 
 
