@@ -12,13 +12,10 @@ class ContextRecommender:
         self.contextList = []
 
     def loadWb(self):
-<<<<<<< HEAD
         # load wb on mac
         #self.wb = load_workbook(os.path.dirname(__file__) + '/Data_InCarMusic.xlsx')
 
         # load wb on windows
-=======
->>>>>>> 6aea94b88eda95096305f3c68fe65926df40a51c
         self.wb = load_workbook(os.path.dirname(__file__) + '\\Data_InCarMusic.xlsx')
         self.train = self.wb["TrainSet"]
         self.test = self.wb["TestSet"]
@@ -88,27 +85,16 @@ class ContextRecommender:
         #for all users that have rated the item in the context
         for j in range(transposeDim.row_ptr[item -1], transposeDim.row_ptr[item]):
             if(transposeDim.val[j] == contextValue):
-<<<<<<< HEAD
                 otherUser = transposeDim.col_ind[j]
 
                 #find the change in rating and weight it based on User-User similarity
                 changeInRating = self.user_item_avg(otherUser,item) - transposeDim.context[j]
-=======
-                otherUser = tranposeDim.col_ind[j]
-
-                #find the change in rating and weight it based on User-User similarity
-                changeInRating = user_item_avg(otherUser,item) - transposeDim.context[j]
->>>>>>> 6aea94b88eda95096305f3c68fe65926df40a51c
                 uuSim = self.contextList[dim - 4].calc_user_user_sim(user,otherUser)
                 cumulativeWeight += (changeInRating * uuSim)
                 numUsers +=1
 
         if(numUsers != 0):
-<<<<<<< HEAD
             return (cumulativeWeight / numUsers)
-=======
-            return (cumultativeWeight / numUsers)
->>>>>>> 6aea94b88eda95096305f3c68fe65926df40a51c
         else:
             return -1
  
@@ -118,11 +104,7 @@ class ContextRecommender:
         f.close()
         
         sumSquareError = 0.0
-<<<<<<< HEAD
         absoluteError = 0.0
-=======
-        abosoluteError = 0.0
->>>>>>> 6aea94b88eda95096305f3c68fe65926df40a51c
         numRating = 0.0
         
         for i in range(2,len(self.test["A"])):
