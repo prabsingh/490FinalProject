@@ -13,10 +13,10 @@ class ContextRecommender:
 
     def loadWb(self):
         # load wb on mac
-        #self.wb = load_workbook(os.path.dirname(__file__) + '/Data_InCarMusic.xlsx')
+        self.wb = load_workbook(os.path.dirname(__file__) + '/Data_InCarMusic.xlsx')
 
         # load wb on windows
-        self.wb = load_workbook(os.path.dirname(__file__) + '\\Data_InCarMusic.xlsx')
+        #self.wb = load_workbook(os.path.dirname(__file__) + '\\Data_InCarMusic.xlsx')
         self.train = self.wb["TrainSet"]
         self.test = self.wb["TestSet"]
 

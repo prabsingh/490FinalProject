@@ -122,6 +122,7 @@ class CSR:
 
         col_ind2 = [None] * (nnz2 + 1)
         val2 = [None] * (nnz2 + 1)
+        context2 = [None] * (nnz2 + 1)
 
         # First run
         for i in range(0, self.rows):
@@ -143,20 +144,23 @@ class CSR:
                 i2 = self.col_ind[j]
                 col_ind2[row_ptr2[i2] + row_counts2[i2]] = i
                 val2[row_ptr2[i2] + row_counts2[i2]] = self.val[j]
+                context2[row_ptr2[i2] + row_counts2[i2]] = self.context[j]
                 row_counts2[i2] += 1
 
         del val2[0]
         del col_ind2[0]
+        del context2[0]
 
         # We will want to return a new CSR() and set the member variables appropriately
         transposed_csr = CSR()
         transposed_csr.val = val2
         transposed_csr.col_ind = col_ind2
         transposed_csr.row_ptr = row_ptr2
+        transposed_csr.context = context2
         transposed_csr.rows = self.columns
         transposed_csr.columns = self.rows
         transposed_csr.nnz = self.nnz
-        transposed_csr.csr_dict = {'val': transposed_csr.val, 'col_ind': transposed_csr.col_ind, 'row_ptr': transposed_csr.row_ptr}
+        transposed_csr.csr_dict = {'context': transposed_csr.context, 'val': transposed_csr.val, 'col_ind': transposed_csr.col_ind, 'row_ptr': transposed_csr.row_ptr}
 
         return transposed_csr
 
