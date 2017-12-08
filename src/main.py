@@ -11,7 +11,6 @@ def main():
     recommender.loadWb()
     recommender.createContextCSR()
     recommender.recommend()
-    print("Done")
 
 
 main()

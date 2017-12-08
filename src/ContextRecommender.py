@@ -48,30 +48,33 @@ class ContextRecommender:
     def user_item_avg(self, user, item):
         #avg across all items
         allSum = 0.0
-        totalItemsRated = 0.0
+        totalItemsRated = 0
 
         #avg across given item
         itemSum = 0.0
-        numItemRated = 0.0
+        numItemRated = 0
         
         #loop through all context
         for context in self.contextList:
             #for each item that user rated 
             for i in range(context.row_ptr[user - 1],context.row_ptr[user]):
                 #accumulated for total Avg
-                allSum += context.context[i]
+                allSum += context.context[i-1]
                 totalItemsRated += 1
                 
-                if(context.col_ind[i] == item):
+                if(context.col_ind[i-1] == item):
                     #accumlate for item Avg
-                    itemSum += context.context[i]
+                    itemSum += context.context[i-1]
                     numItemRated +=1
 
         #if the item has not been rated by the user
         #then return the overall avg
 
         if(numItemRated == 0):
-            return allSum/totalItemsRated
+            if(totalItemsRated == 0):
+                return 2.5
+            else:
+                return allSum/totalItemsRated
         else:
             return itemSum/numItemRated
 
@@ -106,8 +109,9 @@ class ContextRecommender:
         sumSquareError = 0.0
         absoluteError = 0.0
         numRating = 0.0
-        
-        for i in range(2,len(self.test["A"])):
+
+        numRows = len(self.test["A"])
+        for i in range(2, numRows + 1):
             user = self.test.cell(row = i, column = 1).value
             item = self.test.cell(row = i, column = 2).value
 
@@ -138,10 +142,14 @@ class ContextRecommender:
                 numDim += noContextWeight
 
             #prediction is the baseline + avg of the contextWeight
-            predictRating = userBaseline + (overallWeight/numDim)
+            contextModifier = 0
+            if(numDim != 0):
+                contextModifier = overallWeight/numDim
+                
+            predictRating = userBaseline + contextModifier
             actualRating = int(self.test.cell(row = i, column = 3).value)
             diff = 0
-            if(actualRating > predict):
+            if(actualRating > predictRating):
                 diff = actualRating - predictRating
             else:
                 diff = predictRating - actualRating
