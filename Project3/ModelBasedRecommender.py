@@ -34,7 +34,7 @@ class ModelBasedRecommender:
             startRow = self.trainCSR.row_ptr[user - 1]
             endRow = self.trainCSR.row_ptr[user]
             
-            cumulSum = [0] * self.k            
+            cumulSum = [0] * self.k
             #for all items that user has rated
             for i in range(startRow, endRow):
                 rowV = self.trainCSR.col_ind[i] - 1
