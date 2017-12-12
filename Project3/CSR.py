@@ -13,6 +13,64 @@ class CSR:
         self.columns = None
         self.nnz = None
 
+    def build_no_context_numpy(self, np_array, user_list):
+        col_lis = []
+        self.rows = len(user_list)
+
+        row = 0
+        x, y = np_array.shape
+        # Each user is represented once in user_list
+        for index, user in enumerate(user_list):
+            column = 0
+            num_nz = 0
+            while row < x and user == np_array[row][0]:
+
+                dim_sum = 0
+                # Magic numbers 4 and 12 represent the columns that our dimensions are found in
+                # for(i = 4; i < 12; i++)
+                for i in range(3, 11):
+                    dim_sum += np_array[row][i]
+
+                # If any context value is greater than 0, the sum clearly will not be equal to 0.
+                if dim_sum == 0:
+                    self.csr_dict['col_ind'].append(column)
+                    self.csr_dict['val'].append(0)
+                    self.csr_dict['context'].append(np_array[row][2])
+                    num_nz += 1
+                column += 1
+                row += 1
+            col_lis.append(column)
+            temp = num_nz + self.csr_dict['row_ptr'][index]
+            self.csr_dict['row_ptr'].append(temp)
+
+        self.nnz = self.csr_dict['row_ptr'][len(self.csr_dict['row_ptr']) - 1] - 1
+        self.columns = max(col_lis)
+
+    def build_from_numpy(self, np_array, user_list, dimension):
+        col_lis = []
+        self.rows = len(user_list)
+
+        row = 0
+        x, y = np_array.shape
+        # Each user is represented once in user_list
+        for index, user in enumerate(user_list):
+            column = 0
+            num_nz = 0
+            while row < x and user == np_array[row][0]:
+                if np_array[row][dimension] != 0:
+                    self.csr_dict['col_ind'].append(column)
+                    self.csr_dict['val'].append(np_array[row][dimension])
+                    self.csr_dict['context'].append(np_array[row][2])
+                    num_nz += 1
+                column += 1
+                row += 1
+            col_lis.append(column)
+            temp = num_nz + self.csr_dict['row_ptr'][index]
+            self.csr_dict['row_ptr'].append(temp)
+
+        self.nnz = self.csr_dict['row_ptr'][len(self.csr_dict['row_ptr']) - 1] - 1
+        self.columns = max(col_lis)
+
     def build_no_context(self, ws, user_list):
         col_lis = []
         self.rows = len(user_list)
