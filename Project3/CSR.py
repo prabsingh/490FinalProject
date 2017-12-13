@@ -170,7 +170,7 @@ class CSR:
             prev_row_ptr = self.csr_dict['row_ptr'][row_ptr_len - 1]
             self.csr_dict['row_ptr'].append(non_zero_counter + prev_row_ptr)
 
-    def transpose(self):
+    def transpose(self,contextParam):
         nrows2 = self.rows
         ncols2 = self.columns
         nnz2 = self.nnz
@@ -180,7 +180,8 @@ class CSR:
 
         col_ind2 = [None] * (nnz2 + 1)
         val2 = [None] * (nnz2 + 1)
-        context2 = [None] * (nnz2 + 1)
+        if (contextParam == True):
+            context2 = [None] * (nnz2 + 1)
 
         # First run
         for i in range(0, self.rows):
@@ -202,19 +203,22 @@ class CSR:
                 i2 = self.col_ind[j]
                 col_ind2[row_ptr2[i2] + row_counts2[i2]] = i
                 val2[row_ptr2[i2] + row_counts2[i2]] = self.val[j]
-                context2[row_ptr2[i2] + row_counts2[i2]] = self.context[j]
+                if (contextParam == True):
+                    context2[row_ptr2[i2] + row_counts2[i2]] = self.context[j]
                 row_counts2[i2] += 1
 
         del val2[0]
         del col_ind2[0]
-        del context2[0]
+        if (contextParam == True):
+            del context2[0]
 
         # We will want to return a new CSR() and set the member variables appropriately
         transposed_csr = CSR()
         transposed_csr.val = val2
         transposed_csr.col_ind = col_ind2
         transposed_csr.row_ptr = row_ptr2
-        transposed_csr.context = context2
+        if (contextParam == True):
+            transposed_csr.context = context2
         transposed_csr.rows = self.columns
         transposed_csr.columns = self.rows
         transposed_csr.nnz = self.nnz

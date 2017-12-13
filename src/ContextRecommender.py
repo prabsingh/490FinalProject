@@ -1,8 +1,10 @@
 from openpyxl import load_workbook
 from CSR import *
+import ModelBasedRecommender as MBrecommender
 import os.path
 import math
 import numpy as np
+
 
 
 class ContextRecommender:
@@ -10,6 +12,7 @@ class ContextRecommender:
         self.train = None
         self.test = None
         self.contextList = []
+        self.modelRecommender = None
 
     def loadWb(self):
 
@@ -24,6 +27,12 @@ class ContextRecommender:
 
         self.train = train_set.astype(int)
         self.test = test_set.astype(int)
+
+    def createModelRecommender(self,trainfile, testfile):
+        self.modelRecommender = MBrecommender.ModelBasedRecommender(50, .2)
+        self.modelRecommender.initialize(self.train, self.test)
+        self.modelRecommender.factorMatrix()
+        
 
     # return the list of unique users
     def getUsers(self):
@@ -111,7 +120,15 @@ class ContextRecommender:
         f.close()
 
         sumSquareError = 0.0
+        sumSquareErrorModel = 0.0
+        sumSquareErrorNoContext = 0.0
+        sumSquareErrorAvg = 0.0
+        
         absoluteError = 0.0
+        absoluteErrorModel = 0.0
+        absoluteErrorNoContext = 0.0
+        absoluteErrorAvg = 0.0
+        
         numRating = 0.0
 
         numRows = self.test.shape[0]
@@ -120,6 +137,7 @@ class ContextRecommender:
             item = self.test[i][1]
 
             userBaseline = self.user_item_avg(user, item)
+            modelBasedBaseline = self.modelRecommender.predictRating(user,item)
 
             overallWeight = 0.0
             numDim = 0.0
@@ -151,19 +169,57 @@ class ContextRecommender:
                 contextModifier = overallWeight / numDim
 
             predictRating = userBaseline + contextModifier
-            actualRating = int(self.test[i][2])
-            diff = 0
-            if (actualRating > predictRating):
-                diff = actualRating - predictRating
-            else:
-                diff = predictRating - actualRating
+            modelPredictRating = modelBasedBaseline + contextModifier
 
-            sumSquareError += (actualRating - predictRating) ** 2
+            # the the rating is from 0 - 5, predictions should follow those bounds
+            if (predictRating > 5):
+                predictRating = 5
+            elif (predictRating < 0):
+                predictRating = 0
+
+            if (modelPredictRating > 5):
+                modelPredictRating = 5
+            elif (modelPredictRating < 0):
+                modelPredictRating = 0
+
+            if (modelBasedBaseline > 5):
+                modelBasedBaseline = 5
+            elif (modelBasedBaseline < 0):
+                modelBasedBaseline = 0
+            
+            actualRating = int(self.test[i][2])
+            diff = abs(actualRating - predictRating)
+            diffModel = abs(actualRating - modelPredictRating)
+            diffAvg = abs(actualRating - userBaseline)
+            diffNoContext = abs(actualRating - modelBasedBaseline)
+            
+
+            sumSquareError += (diff) ** 2
+            sumSquareErrorModel += (diffModel) ** 2
+            sumSquareErrorNoContext += (diffNoContext) ** 2
+            sumSquareErrorAvg += (diffAvg) ** 2
+            
             absoluteError += diff
+            absoluteErrorModel += diffModel
+            absoluteErrorNoContext += diffNoContext
+            absoluteErrorAvg += diffAvg
             numRating += 1
 
             f = open("output.txt", 'a')
-            f.write("{} {} \n".format(user, predictRating))
+            f.write("{} {}  {} \n".format(user, predictRating, modelPredictRating))
 
+        print("Using Avg as Base")
         print("RMSE : {0}".format(math.sqrt(sumSquareError / numRating)))
         print("MAE  : {0}".format(absoluteError / numRating))
+
+        print("Using ModelRecommender as Base")
+        print("RMSE : {}".format(math.sqrt(sumSquareErrorModel / numRating)))
+        print("MAE  : {}".format(absoluteErrorModel / numRating))
+
+        print("Just using Avg")
+        print("RMSE : {0}".format(math.sqrt(sumSquareErrorAvg / numRating)))
+        print("MAE  : {0}".format(absoluteErrorAvg / numRating))
+        
+        print("Just using Model")
+        print("RMSE : {0}".format(math.sqrt(sumSquareErrorNoContext / numRating)))
+        print("MAE  : {0}".format(absoluteErrorNoContext / numRating))

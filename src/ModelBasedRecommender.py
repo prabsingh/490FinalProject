@@ -13,12 +13,9 @@ class ModelBasedRecommender:
 
     #initialize the factor matricies U,V with 1/k 
     def initialize(self, trainFile, testFile):
-        self.trainCSR.build_from_file(trainFile)
+        self.trainCSR.build_from_numpy(trainFile)
         self.trainTransposeCSR = self.trainCSR.transpose(False)
-        print(self.trainCSR.columns)
-        print(len(self.trainCSR.col_ind))
-        print(self.trainCSR.col_ind[0])
-        self.testCSR.build_from_file(testFile)
+        self.testCSR.build_from_numpy(testFile)
 
         self.U = np.empty([self.trainCSR.rows, self.k])
         self.U.fill(1.0/self.k)

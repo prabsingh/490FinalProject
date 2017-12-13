@@ -3,12 +3,12 @@ import ModelBasedRecommender as MBrecommender
 import time
 
 def main():
-    trainFile  = sys.argv[1]
-    testFile   = sys.argv[2]
-    k          = sys.argv[3]
-    beta       = sys.argv[4]
-    lr         = sys.argv[5]
-    outputFile = sys.argv[6]
+    trainFile  = "train_rating.txt"#sys.argv[1]
+    testFile   = "test_rating.txt"#sys.argv[2]
+    k          = 50 #sys.argv[3]
+    beta       = .2 #sys.argv[4]
+    lr         = 1 #sys.argv[5]
+    outputFile = "output.txt" #sys.argv[6]
 
     recommender = MBrecommender.ModelBasedRecommender(k, beta)
     print("initialize variables")
