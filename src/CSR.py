@@ -13,6 +13,30 @@ class CSR:
         self.columns = None
         self.nnz = None
 
+    def build_model_numpy(self, np_array, user_list):
+        col_lis = []
+        self.rows = len(user_list)
+
+        row = 0
+        x, y = np_array.shape
+        # Each user is represented once in user_list
+        for index, user in enumerate(user_list):
+            column = 0
+            num_nz = 0
+            while row < x and user == np_array[row][0]:
+                if np_array[row][2] != 0:
+                    self.csr_dict['col_ind'].append(column)
+                    self.csr_dict['context'].append(np_array[row][2])
+                    num_nz += 1
+                column += 1
+                row += 1
+            col_lis.append(column)
+            temp = num_nz + self.csr_dict['row_ptr'][index]
+            self.csr_dict['row_ptr'].append(temp)
+
+        self.nnz = self.csr_dict['row_ptr'][len(self.csr_dict['row_ptr']) - 1] - 1
+        self.columns = max(col_lis)
+
     def build_no_context_numpy(self, np_array, user_list):
         col_lis = []
         self.rows = len(user_list)
@@ -179,9 +203,9 @@ class CSR:
         row_counts2 = [0] * ncols2
 
         col_ind2 = [None] * (nnz2 + 1)
-        val2 = [None] * (nnz2 + 1)
+        context2 = [None] * (nnz2 + 1)
         if (contextParam == True):
-            context2 = [None] * (nnz2 + 1)
+            val2 = [None] * (nnz2 + 1)
 
         # First run
         for i in range(0, self.rows):
@@ -202,23 +226,23 @@ class CSR:
             for j in range(self.row_ptr[i] - 1, self.row_ptr[i + 1] - 1):
                 i2 = self.col_ind[j]
                 col_ind2[row_ptr2[i2] + row_counts2[i2]] = i
-                val2[row_ptr2[i2] + row_counts2[i2]] = self.val[j]
+                context2[row_ptr2[i2] + row_counts2[i2]] = self.context[j]
                 if (contextParam == True):
-                    context2[row_ptr2[i2] + row_counts2[i2]] = self.context[j]
+                    val2[row_ptr2[i2] + row_counts2[i2]] = self.val[j]
                 row_counts2[i2] += 1
 
-        del val2[0]
+        del context2[0]
         del col_ind2[0]
         if (contextParam == True):
-            del context2[0]
+            del val2[0]
 
         # We will want to return a new CSR() and set the member variables appropriately
         transposed_csr = CSR()
-        transposed_csr.val = val2
+        transposed_csr.context = context2
         transposed_csr.col_ind = col_ind2
         transposed_csr.row_ptr = row_ptr2
         if (contextParam == True):
-            transposed_csr.context = context2
+            transposed_csr.val = val2
         transposed_csr.rows = self.columns
         transposed_csr.columns = self.rows
         transposed_csr.nnz = self.nnz

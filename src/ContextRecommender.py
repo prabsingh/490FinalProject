@@ -97,7 +97,7 @@ class ContextRecommender:
         cumulativeWeight = 0.0
         numUsers = 0
 
-        transposeDim = self.contextList[dim].transpose()
+        transposeDim = self.contextList[dim].transpose(contextParam=True)
 
         # for all users that have rated the item in the context
         for j in range(transposeDim.row_ptr[item - 1], transposeDim.row_ptr[item]):
@@ -133,7 +133,7 @@ class ContextRecommender:
         numRating = 0.0
 
         numRows = self.test.shape[0]
-        for i in range(0, numRows):
+        for i in range(0, numRows-1):
             user = self.test[i][0]
             item = self.test[i][1]
 

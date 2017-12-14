@@ -52,12 +52,14 @@ class ModelBasedRecommender:
 
         # Created the new data set
         cleanedTrainFile = self.cleanData(trainFile, user_list)
+        cleanedTestFile = testFile[:, :3]
 
         # By nature of the CSR building methods - there are some questions here.
         # 3 is a placeholder
-        self.trainCSR.build_from_numpy(trainFile, user_list, 3)
+        # Create new method
+        self.trainCSR.build_model_numpy(cleanedTrainFile, user_list)
         self.trainTransposeCSR = self.trainCSR.transpose(False)
-        self.testCSR.build_from_numpy(testFile, user_list, 3)
+        self.testCSR.build_model_numpy(cleanedTestFile, user_list)
 
         self.U = np.empty([self.trainCSR.rows, self.k])
         self.U.fill(1.0/self.k)
@@ -80,7 +82,7 @@ class ModelBasedRecommender:
             #for all items that user has rated
             for i in range(startRow, endRow):
                 rowV = self.trainCSR.col_ind[i]
-                rating = self.trainCSR.val[i]
+                rating = self.trainCSR.context[i]
                 for k in range(0, self.k):
                     cumulSum[k] = cumulSum[k] + (rating * self.V[rowV][k])
 
@@ -118,7 +120,7 @@ class ModelBasedRecommender:
             #for all users that have rated the item
             for i in range(startRow, endRow):
                 rowU = self.trainTransposeCSR.col_ind[i]
-                rating = self.trainTransposeCSR.val[i]
+                rating = self.trainTransposeCSR.context[i]
                 for k in range(0,self.k):
                     cumulSum[k] = cumulSum[k] + (rating * self.U[rowU][k])
 
@@ -165,7 +167,7 @@ class ModelBasedRecommender:
                 #for each item that user has rated predict rating based on model
                 for col in range(self.testCSR.row_ptr[user] - 1, self.testCSR.row_ptr[user + 1] - 1):
                     item = self.testCSR.col_ind[col] 
-                    rating = self.testCSR.val[col]
+                    rating = self.testCSR.context[col]
                     predictedRating = int(round(self.predictRating(user, item)))
 
                     #since rating is only from 1 to 5, anything larger/small will be set to the extremes
