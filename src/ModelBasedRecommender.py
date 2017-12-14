@@ -40,7 +40,7 @@ class ModelBasedRecommender:
             # For each songIDs row number, append the actual data corresponding to that row
             for val in row_list:
                 # Use index splicing to get select columns from the row - if needed
-                data_list.append(trainFile[val])
+                data_list.append(trainFile[val][0:3])
 
         # Once all users are iterated over, build the numpy array
         cleaned_arr = np.array(data_list)
@@ -50,6 +50,7 @@ class ModelBasedRecommender:
     #initialize the factor matricies U,V with 1/k 
     def initialize(self, trainFile, testFile, user_list):
 
+        # Created the new data set
         cleanedTrainFile = self.cleanData(trainFile, user_list)
 
         # By nature of the CSR building methods - there are some questions here.
