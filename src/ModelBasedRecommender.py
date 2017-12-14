@@ -16,31 +16,33 @@ class ModelBasedRecommender:
 
     def cleanData(self, trainFile, user_list):
 
-        # For User in data set
-        # Index dict[songID] = list of rows
-        # For each song ID, sort list
-        # Randomly select row from list
-        # Add to new data set
-
+        # numpy array will be built from this list
         data_list = []
+
         row = 0
         x, y = trainFile.shape
         # Each user is represented once in user_list
         for index, user in enumerate(user_list):
-            column = 0
-            num_nz = 0
+
+            # Cleared for each user
             song_dict = defaultdict(list)
             row_list = []
+
+            # Dictionary[songID] points to a list of the rows in which the songID is repeated
             while row < x and user == trainFile[row][0]:
                 song_dict[trainFile[row][1]].append(row)
                 row += 1
 
+            # For each songID, randomly select one of the repeated rows
             for key in song_dict:
                 row_list.append(random.choice(song_dict[key]))
 
+            # For each songIDs row number, append the actual data corresponding to that row
             for val in row_list:
+                # Use index splicing to get select columns from the row - if needed
                 data_list.append(trainFile[val])
 
+        # Once all users are iterated over, build the numpy array
         cleaned_arr = np.array(data_list)
 
         return cleaned_arr
