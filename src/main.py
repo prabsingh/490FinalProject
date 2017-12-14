@@ -1,5 +1,4 @@
 from ContextRecommender import *
-import numpy as np
 
 
 def main():
@@ -9,8 +8,6 @@ def main():
     recommender.createContextCSR()
     recommender.createModelRecommender("trainCSV.csv", "testCSV.csv")
     recommender.recommend()
-
-
 
 
 main()

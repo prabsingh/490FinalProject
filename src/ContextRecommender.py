@@ -1,4 +1,3 @@
-from openpyxl import load_workbook
 from CSR import *
 import ModelBasedRecommender as MBrecommender
 import os.path
