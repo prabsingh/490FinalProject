@@ -1,6 +1,9 @@
 import CSR
 import numpy as np
 import math
+import random
+from collections import defaultdict
+
 
 class ModelBasedRecommender:
 
@@ -11,11 +14,47 @@ class ModelBasedRecommender:
         self.k = int(k)
         self.beta = float(beta)
 
+    def cleanData(self, trainFile, user_list):
+
+        # For User in data set
+        # Index dict[songID] = list of rows
+        # For each song ID, sort list
+        # Randomly select row from list
+        # Add to new data set
+
+        data_list = []
+        row = 0
+        x, y = trainFile.shape
+        # Each user is represented once in user_list
+        for index, user in enumerate(user_list):
+            column = 0
+            num_nz = 0
+            song_dict = defaultdict(list)
+            row_list = []
+            while row < x and user == trainFile[row][0]:
+                song_dict[trainFile[row][1]].append(row)
+                row += 1
+
+            for key in song_dict:
+                row_list.append(random.choice(song_dict[key]))
+
+            for val in row_list:
+                data_list.append(trainFile[val])
+
+        cleaned_arr = np.array(data_list)
+
+        return cleaned_arr
+
     #initialize the factor matricies U,V with 1/k 
-    def initialize(self, trainFile, testFile):
-        self.trainCSR.build_from_numpy(trainFile)
+    def initialize(self, trainFile, testFile, user_list):
+
+        cleanedTrainFile = self.cleanData(trainFile, user_list)
+
+        # By nature of the CSR building methods - there are some questions here.
+        # 3 is a placeholder
+        self.trainCSR.build_from_numpy(trainFile, user_list, 3)
         self.trainTransposeCSR = self.trainCSR.transpose(False)
-        self.testCSR.build_from_numpy(testFile)
+        self.testCSR.build_from_numpy(testFile, user_list, 3)
 
         self.U = np.empty([self.trainCSR.rows, self.k])
         self.U.fill(1.0/self.k)

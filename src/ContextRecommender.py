@@ -29,8 +29,9 @@ class ContextRecommender:
         self.test = test_set.astype(int)
 
     def createModelRecommender(self,trainfile, testfile):
+        user_list = self.getUsers()
         self.modelRecommender = MBrecommender.ModelBasedRecommender(50, .2)
-        self.modelRecommender.initialize(self.train, self.test)
+        self.modelRecommender.initialize(self.train, self.test, user_list)
         self.modelRecommender.factorMatrix()
         
 
