@@ -1,1 +1,1 @@
-python main.py
+Command to run on Tesla: python main.py
