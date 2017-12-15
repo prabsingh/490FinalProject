@@ -68,7 +68,7 @@ class ModelBasedRecommender:
 
     def factorMatrix(self):
         #Repeat ALS        
-        for i in range(0,2):
+        for i in range(0,50):
             self.updateU()
             self.updateV()
             
